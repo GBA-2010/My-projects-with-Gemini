@@ -86,8 +86,23 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 8px; 
             pointer-events: none; /* Чтобы не мешал кликам */
+        }
+
+        /* Иконка галочки в зеленом квадрате (дискете) */
+        .header-app-icon {
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(180deg, #34C759 0%, #248A3D 100%);
+            border-radius: 5px; /* Форма "дискеты" (скругленный квадрат) */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.2);
+            flex-shrink: 0;
         }
 
         /* Контент */
@@ -402,13 +417,11 @@
                 <div class="traffic-light maximize"></div>
             </div>
             <div class="window-title">
-                <!-- Черное мини-окно (CMD) в заголовке -->
-                <div class="cmd-mini-window">
-                    <div class="cmd-mini-header">
-                        <div class="cmd-mini-dot"></div>
-                        <div class="cmd-mini-dot"></div>
-                    </div>
-                    <div class="cmd-mini-body">&gt;_</div>
+                <!-- Зеленый квадрат (дискета) с галочкой внутри -->
+                <div class="header-app-icon">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
                 </div>
                 Terminal — Activation Assistant
             </div>
