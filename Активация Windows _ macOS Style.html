@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- saved from url=(0057)file:///C:/Users/admin/Downloads/simple-win-activate.html -->
 <html lang="ru"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -54,13 +55,12 @@
             padding: 0 20px;
             border-bottom: 1px solid rgba(0, 0, 0, 0.05);
             background: rgba(255, 255, 255, 0.4);
-            position: relative;
         }
 
         .traffic-lights {
             display: flex;
             gap: 8px;
-            z-index: 10;
+            margin-right: 20px;
         }
 
         .traffic-light {
@@ -74,34 +74,13 @@
         .maximize { background-color: #28c840; border: 1px solid #1aab29; }
 
         .window-title {
-            position: absolute;
-            left: 0;
-            right: 0;
-            text-align: center;
             font-weight: 600;
             font-size: 15px;
             color: var(--text-primary);
-            opacity: 0.9;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px; 
-            pointer-events: none; /* Чтобы не мешал кликам */
-        }
-
-        /* Иконка галочки в зеленом квадрате (дискете) */
-        .header-app-icon {
-            width: 20px;
-            height: 20px;
-            background: linear-gradient(180deg, #34C759 0%, #248A3D 100%);
-            border-radius: 5px; /* Форма "дискеты" (скругленный квадрат) */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-            border: 1px solid rgba(255,255,255,0.2);
-            flex-shrink: 0;
+            flex-grow: 1;
+            text-align: center;
+            margin-right: 60px; /* Компенсация светофора для центровки */
+            opacity: 0.8;
         }
 
         /* Контент */
@@ -160,8 +139,6 @@
             border: 1px solid rgba(255, 255, 255, 0.6);
             box-shadow: 0 4px 12px rgba(0,0,0,0.03);
             transition: transform 0.2s ease;
-            position: relative;
-            overflow: hidden;
         }
 
         .step-card:hover {
@@ -182,61 +159,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* Крупная иконка терминала для Шага 1 - УМЕНЬШЕНА */
-        .terminal-hero-icon {
-            float: right;
-            width: 40px; 
-            height: 40px; 
-            background: #2a2a2a;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            padding: 5px;
-            box-sizing: border-box;
-            box-shadow: 0 5px 12px rgba(0,0,0,0.15);
-            border: 1px solid rgba(255,255,255,0.1);
-            margin-left: 15px;
-            margin-bottom: 5px;
-        }
-
-        .terminal-hero-header {
-            width: 100%;
-            height: 5px;
-            background: #444;
-            border-radius: 3px 3px 0 0;
-            margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-            padding-left: 3px;
-            gap: 2px;
-        }
-
-        .hero-dot {
-            width: 3px;
-            height: 3px;
-            border-radius: 50%;
-            background: #666;
-        }
-
-        .terminal-hero-body {
-            font-family: monospace;
-            font-size: 8px;
-            color: #34C759;
-            line-height: 1.1;
-        }
-
-        .cursor-blink {
-            display: inline-block;
-            width: 6px;
-            height: 10px;
-            background: #34C759;
-            animation: blink 1s step-end infinite;
-            vertical-align: middle;
-        }
-
-        @keyframes blink { 50% { opacity: 0; } }
-
         /* Блоки кода */
         .code-container {
             display: flex;
@@ -248,57 +170,6 @@
             border: 1px solid rgba(0,0,0,0.05);
             justify-content: space-between;
             gap: 15px;
-        }
-
-        .code-content-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-            min-width: 0;
-        }
-
-        /* Мини-окно терминала ("Черная дискета") */
-        .cmd-mini-window {
-            width: 18px;
-            height: 15px;
-            background: #1e1e1e;
-            border-radius: 2px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-            flex-shrink: 0;
-            border: 1px solid rgba(0,0,0,0.2);
-        }
-
-        .cmd-mini-header {
-            height: 4px;
-            background: #e0e0e0;
-            border-bottom: 1px solid #333;
-            display: flex;
-            align-items: center;
-            padding-left: 2px;
-            gap: 1px;
-        }
-
-        .cmd-mini-dot {
-            width: 1.5px;
-            height: 1.5px;
-            border-radius: 50%;
-            background: #888;
-        }
-
-        .cmd-mini-body {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            padding-left: 1px;
-            font-family: monospace;
-            font-size: 7px;
-            color: #34C759;
-            font-weight: bold;
-            line-height: 1;
         }
 
         .code-text {
@@ -359,16 +230,10 @@
             border-color: rgba(88, 86, 214, 0.3); /* Purple tint */
         }
 
-        .version-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-
         .version-title {
             font-weight: 700;
-            font-size: 15px;
+            font-size: 14px;
+            margin-bottom: 8px;
             display: block;
         }
         
@@ -398,32 +263,26 @@
         @media (max-width: 600px) {
             body { padding: 10px; }
             .content { padding: 20px; }
-            .window-title { justify-content: flex-start; margin-left: 60px; }
+            .window-title { display: none; }
             .code-container { flex-direction: column; align-items: stretch; }
             .btn-copy { width: 100%; text-align: center; }
-            .terminal-hero-icon { display: none; }
         }
     </style>
 </head>
 <body>
 
     <div class="mac-window">
+        <!-- Заголовок окна -->
         <div class="window-header">
             <div class="traffic-lights">
                 <div class="traffic-light close"></div>
                 <div class="traffic-light minimize"></div>
                 <div class="traffic-light maximize"></div>
             </div>
-            <div class="window-title">
-                <div class="header-app-icon">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                </div>
-                Terminal — Activation Assistant
-            </div>
+            <div class="window-title">Terminal — Activation Assistant</div>
         </div>
 
+        <!-- Контент -->
         <div class="content">
             <h1>Активация Windows</h1>
             <p style="color: var(--text-secondary);">Простой способ активировать систему через командную строку (KMS).</p>
@@ -436,133 +295,63 @@
                 </div>
             </div>
 
+            <!-- Шаг 1 -->
             <div class="step-card">
-                <div class="terminal-hero-icon">
-                    <div class="terminal-hero-header">
-                        <div class="hero-dot"></div>
-                        <div class="hero-dot"></div>
-                    </div>
-                    <div class="terminal-hero-body">
-                        C:\&gt;<span class="cursor-blink"></span>
-                    </div>
-                </div>
-
                 <span class="step-badge">Шаг 1</span>
                 <h3>Запуск терминала</h3>
-                <p>Откройте командную строку (CMD) от имени администратора:</p>
+                <p>Откройте командную строку от имени администратора:</p>
                 <ol style="padding-left: 20px; color: #424245;">
                     <li>Нажмите <kbd>Win</kbd> + <kbd>R</kbd></li>
                     <li>Введите <code>cmd</code></li>
                     <li>Нажмите <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Enter</kbd></li>
                 </ol>
-                <p style="font-size: 13px; color: var(--text-secondary); margin-top: 8px;">
-                    Вы увидите черное окно с приглашением <code>C:\Windows\system32&gt;</code>
-                </p>
             </div>
 
+            <!-- Шаг 2 -->
             <div class="step-card">
                 <span class="step-badge">Шаг 2</span>
                 <h3>Установка ключа продукта</h3>
                 <p>Выберите версию вашей Windows и скопируйте соответствующую команду:</p>
 
                 <div class="version-selector">
+                    <!-- Home -->
                     <div class="version-block home">
-                        <div class="version-header">
-                            <div class="cmd-mini-window">
-                                <div class="cmd-mini-header">
-                                    <div class="cmd-mini-dot"></div>
-                                    <div class="cmd-mini-dot"></div>
-                                </div>
-                                <div class="cmd-mini-body">&gt;_</div>
-                            </div>
-                            <span class="version-title">Windows Home / Core</span>
-                        </div>
-                        
+                        <span class="version-title">Windows Home / Core</span>
                         <div class="code-container">
                             <span class="code-text">slmgr /ipk TX9XD-98N7V-6WMQ6-BX7FG-H8Q99</span>
-                            <button class="btn-copy" onclick="copyText(this, &#39;slmgr /ipk TX9XD-98N7V-6WMQ6-BX7FG-H8Q99&#39;)">Копировать</button>
                         </div>
+                        <button class="btn-copy" onclick="copyText(this, &#39;slmgr /ipk TX9XD-98N7V-6WMQ6-BX7FG-H8Q99&#39;)">Копировать</button>
                     </div>
 
+                    <!-- Pro -->
                     <div class="version-block pro">
-                        <div class="version-header">
-                            <div class="cmd-mini-window">
-                                <div class="cmd-mini-header">
-                                    <div class="cmd-mini-dot"></div>
-                                    <div class="cmd-mini-dot"></div>
-                                </div>
-                                <div class="cmd-mini-body">&gt;_</div>
-                            </div>
-                            <span class="version-title">Windows Professional</span>
-                        </div>
-
+                        <span class="version-title">Windows Professional</span>
                         <div class="code-container">
                             <span class="code-text">slmgr /ipk W269N-WFGWX-YVC9B-4J6C9-T83GX</span>
-                            <button class="btn-copy" onclick="copyText(this, &#39;slmgr /ipk W269N-WFGWX-YVC9B-4J6C9-T83GX&#39;)">Копировать</button>
                         </div>
+                        <button class="btn-copy" onclick="copyText(this, &#39;slmgr /ipk W269N-WFGWX-YVC9B-4J6C9-T83GX&#39;)">Копировать</button>
                     </div>
                 </div>
             </div>
 
+            <!-- Шаг 3 -->
             <div class="step-card">
                 <span class="step-badge">Шаг 3</span>
                 <h3>Активация</h3>
                 <p>Введите эти две команды по очереди для завершения процесса:</p>
 
                 <div class="code-container">
-                    <div class="code-content-wrapper">
-                        <div class="cmd-mini-window">
-                            <div class="cmd-mini-header">
-                                <div class="cmd-mini-dot"></div>
-                                <div class="cmd-mini-dot"></div>
-                            </div>
-                            <div class="cmd-mini-body">&gt;_</div>
-                        </div>
-                        <span class="code-text">slmgr /skms kms.digiboy.ir</span>
-                    </div>
+                    <span class="code-text">slmgr /skms kms.digiboy.ir</span>
                     <button class="btn-copy" onclick="copyText(this, &#39;slmgr /skms kms.digiboy.ir&#39;)">Копировать</button>
                 </div>
 
                 <div class="code-container">
-                    <div class="code-content-wrapper">
-                        <div class="cmd-mini-window">
-                            <div class="cmd-mini-header">
-                                <div class="cmd-mini-dot"></div>
-                                <div class="cmd-mini-dot"></div>
-                            </div>
-                            <div class="cmd-mini-body">&gt;_</div>
-                        </div>
-                        <span class="code-text">slmgr /ato</span>
-                    </div>
+                    <span class="code-text">slmgr /ato</span>
                     <button class="btn-copy" onclick="copyText(this, &#39;slmgr /ato&#39;)">Копировать</button>
                 </div>
                 
                 <p style="font-size: 13px; color: var(--text-secondary); margin-top: 10px;">
                     После ввода последней команды подождите 10-15 секунд до появления окна "Product activated successfully".
-                </p>
-            </div>
-
-            <div class="step-card">
-                <span class="step-badge">Шаг 4</span>
-                <h3>Проверка статуса</h3>
-                <p>Чтобы убедиться, что активация прошла успешно, выполните эту команду:</p>
-
-                <div class="code-container">
-                    <div class="code-content-wrapper">
-                        <div class="cmd-mini-window">
-                            <div class="cmd-mini-header">
-                                <div class="cmd-mini-dot"></div>
-                                <div class="cmd-mini-dot"></div>
-                            </div>
-                            <div class="cmd-mini-body">&gt;_</div>
-                        </div>
-                        <span class="code-text">slmgr.vbs /dli</span>
-                    </div>
-                    <button class="btn-copy" onclick="copyText(this, &#39;slmgr.vbs /dli&#39;)">Копировать</button>
-                </div>
-                
-                <p style="font-size: 13px; color: var(--text-secondary); margin-top: 10px;">
-                    Появится окно с информацией о лицензии. Убедитесь, что статус — "Licensed".
                 </p>
             </div>
 
@@ -602,7 +391,6 @@
             document.body.removeChild(tempInput);
         }
     </script>
-
 
 
 </body></html>
