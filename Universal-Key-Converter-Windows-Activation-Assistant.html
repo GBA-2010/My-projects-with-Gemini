@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Универсальный KMS to HWID Конвертер</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555; 
+        }
+        .key-input {
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-8 transition-all duration-300 hover:shadow-2xl">
+        
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">KMS to HWID</h1>
+            <p class="text-sm text-gray-500">Универсальный конвертер ключей и помощник активации Windows</p>
+        </div>
+
+        <div class="mb-6">
+            <label for="kms-key" class="block text-sm font-medium text-gray-700 mb-2">Вставьте команду или KMS ключ:</label>
+            <input type="text" id="kms-key" placeholder="Например: W269N-WFGWX-YVC9B-4J6C9-T83GX"
+                class="key-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors uppercase font-mono text-gray-800 text-center">
+            
+            <p id="error-msg" class="text-red-500 text-xs mt-2 hidden text-center">Пожалуйста, введите корректный ключ в формате XXXXX-XXXXX-XXXXX-XXXXX-XXXXX</p>
+            
+            <div class="text-center text-sm text-gray-400 font-medium my-4">— ИЛИ —</div>
+
+            <label for="os-select" class="block text-sm font-medium text-gray-700 mb-2">Задать ключ вручную (выберите редакцию):</label>
+            <select id="os-select" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 bg-gray-50 font-medium cursor-pointer transition-colors">
+                <option value="">-- Выберите версию Windows --</option>
+                <option value="VK7JG-NPHTM-C97JM-9MPGT-3V66T">Windows 10/11 Pro</option>
+                <option value="YTMG3-N6DKC-DKB77-7M9GH-8HVX7">Windows 10/11 (Просто / Без Home и без Pro)</option>
+                <option value="YTMG3-N6DKC-DKB77-7M9GH-8HVX7">Windows 10/11 Home</option>
+                <option value="BT79Q-G7N6G-PGBYW-4YWX6-6F4BT">Windows 10/11 Home Single Language</option>
+                <option value="XGVPP-NMH47-7TTHJ-W3FW7-8HV2C">Windows 10/11 Enterprise</option>
+                <option value="YNMGQ-8RYV3-4PGQ3-C8XTP-7CFBY">Windows 10/11 Education</option>
+                <option value="DXG7C-N36C4-C4HTG-X4T3X-2YV77">Windows 10/11 Pro for Workstations</option>
+            </select>
+
+            <div id="detected-version" class="mt-3 flex items-center justify-center gap-2 hidden">
+                <span class="flex h-2 w-2 rounded-full bg-blue-500"></span>
+                <p class="text-sm font-medium text-blue-700">Определена редакция: <span id="version-name" class="font-bold"></span></p>
+            </div>
+        </div>
+
+        <button id="convert-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 flex justify-center items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+            </svg>
+            <span>Преобразовать в HWID</span>
+        </button>
+
+        <div id="result-container" class="mt-8 hidden opacity-0 transition-opacity duration-500">
+            <div class="border-t border-gray-200 pt-6 mb-4"></div>
+            <h2 class="text-xl font-bold text-gray-800 mb-2">Пошаговая инструкция</h2>
+            <p class="text-sm text-gray-600 mb-4">Для получения вечной цифровой лицензии выполните эти 5 шагов. Откройте <strong>Командную строку (CMD) от имени администратора</strong>:</p>
+
+            <div class="space-y-6">
+                
+                <!-- Шаг 1: Очистка системы -->
+                <div class="bg-gray-50 p-4 rounded-lg border border-red-50">
+                    <label class="block text-base font-semibold text-gray-800 mb-1">Шаг 1: Очистка от старых ключей и KMS (Рекомендуется)</label>
+                    <p class="text-sm text-gray-500 mb-2">Эта команда разом удалит старый ключ, очистит реестр и отвяжет ПК от пиратских KMS-серверов. (Появятся 3 окошка, везде нажмите "ОК").</p>
+                    <div class="relative">
+                        <input type="text" readonly value="slmgr /upk & slmgr /cpky & slmgr /ckms"
+                            class="w-full px-3 py-3 pr-12 border border-red-200 bg-red-50 text-red-800 rounded-md font-mono font-medium text-sm focus:outline-none">
+                        <button class="copy-cmd-btn absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-600 focus:outline-none p-2" data-clipboard-text="slmgr /upk & slmgr /cpky & slmgr /ckms" title="Копировать">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Шаг 2: Установка ключа -->
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    <label class="block text-base font-semibold text-gray-800 mb-1">Шаг 2: Установка HWID ключа (<span id="step1-version-name" class="font-normal text-gray-500"></span>)</label>
+                    <p class="text-sm text-gray-500 mb-2">Скопируйте и выполните эту команду. Дождитесь окна "Ключ продукта успешно установлен".</p>
+                    <div class="relative">
+                        <input type="text" id="hwid-key" readonly 
+                            class="w-full px-3 py-3 pr-12 border border-green-300 bg-green-50 text-green-800 rounded-md font-mono font-medium text-sm focus:outline-none">
+                        <button class="copy-cmd-btn absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-green-600 focus:outline-none transition-colors p-2" title="Копировать">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Шаг 3: Активация MAS -->
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    <label class="block text-base font-semibold text-gray-800 mb-1">Шаг 3: Генерация цифровой лицензии (MAS)</label>
+                    <div class="text-sm text-gray-600 mb-3 space-y-1">
+                        <p>Выполните команду ниже. Откроется черное окно активатора:</p>
+                        <ul class="list-disc pl-5">
+                            <li>Подождите пару секунд, пока загрузится меню.</li>
+                            <li>Нажмите цифру <strong class="text-blue-600 text-base">1</strong> на клавиатуре (пункт HWID - Windows).</li>
+                            <li>Дождитесь зеленой надписи <span class="text-green-600 font-medium">Successful</span>, затем закройте окно.</li>
+                        </ul>
+                    </div>
+                    <div class="relative">
+                        <input type="text" readonly value='powershell -Command "irm https://get.activated.win | iex"'
+                            class="w-full px-3 py-3 pr-12 border border-gray-700 bg-gray-900 text-green-400 rounded-md font-mono text-sm focus:outline-none selection:bg-green-700 selection:text-white">
+                        <button class="copy-cmd-btn absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-green-400 focus:outline-none p-2" data-clipboard-text='powershell -Command "irm https://get.activated.win | iex"' title="Копировать">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Шаг 4: Проверка даты -->
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    <label class="block text-base font-semibold text-gray-800 mb-1">Шаг 4: Проверка даты окончания (До какого числа)</label>
+                    <p class="text-sm text-gray-500 mb-2">Эта команда покажет срок действия лицензии. При успешном выполнении Шага 3, должно появиться окно с текстом: <strong>«Постоянная активация прошла успешно»</strong> (срок годности не ограничен).</p>
+                    <div class="relative">
+                        <input type="text" readonly value="slmgr /xpr"
+                            class="w-full px-3 py-3 pr-12 border border-blue-200 bg-blue-50 text-blue-800 rounded-md font-mono font-medium text-sm focus:outline-none">
+                        <button class="copy-cmd-btn absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-600 focus:outline-none p-2" data-clipboard-text="slmgr /xpr" title="Копировать">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Шаг 5: Детальная проверка -->
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    <label class="block text-base font-semibold text-gray-800 mb-1">Шаг 5: Детальная информация (Сколько дней)</label>
+                    <p class="text-sm text-gray-500 mb-2">Откроет большое окно со всеми подробностями: тип лицензии, оставшееся количество минут/дней и статус системы.</p>
+                    <div class="relative">
+                        <input type="text" readonly value="slmgr /dlv"
+                            class="w-full px-3 py-3 pr-12 border border-indigo-200 bg-indigo-50 text-indigo-800 rounded-md font-mono font-medium text-sm focus:outline-none">
+                        <button class="copy-cmd-btn absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-indigo-600 focus:outline-none p-2" data-clipboard-text="slmgr /dlv" title="Копировать">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                        </button>
+                    </div>
+                </div>
+            </div> <!-- Closes space-y-6 -->
+        </div> <!-- Closes result-container -->
+        
+        <div id="copy-toast" class="fixed bottom-5 right-5 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg font-medium transition-opacity duration-300 opacity-0 pointer-events-none">
+            Скопировано в буфер обмена!
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const kmsInput = document.getElementById('kms-key');
+            const osSelect = document.getElementById('os-select');
+            const convertBtn = document.getElementById('convert-btn');
+            const resultContainer = document.getElementById('result-container');
+            const hwidOutput = document.getElementById('hwid-key');
+            const errorMsg = document.getElementById('error-msg');
+            const copyToast = document.getElementById('copy-toast');
+            
+            const detectedVersionContainer = document.getElementById('detected-version');
+            const versionNameOutput = document.getElementById('version-name');
+            const step1VersionName = document.getElementById('step1-version-name');
+
+            // Обработка нажатия клавиш в поле ввода KMS
+            kmsInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); 
+                    convertBtn.click(); 
+                } else if (e.key === 'ArrowDown') {
+                    // Переход к селекту по стрелке вниз
+                    e.preventDefault();
+                    osSelect.focus();
+                }
+            });
+
+            // Улучшенная навигация с клавиатуры для выпадающего списка
+            osSelect.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    // Если меню открыто, Enter выберет пункт. 
+                    // Если меню закрыто и пункт уже выбран, Enter запустит конвертацию.
+                    e.preventDefault();
+                    if(this.value) {
+                         convertBtn.click();
+                    }
+                } else if (e.key === 'ArrowUp' && this.selectedIndex === 0) {
+                     // Если мы в самом верху списка и жмем вверх - возвращаемся в поле ввода
+                     e.preventDefault();
+                     kmsInput.focus();
+                }
+            });
+
+            // Очищаем KMS-поле, если пользователь решил выбрать версию из списка
+            osSelect.addEventListener('change', () => {
+                if(osSelect.value) {
+                    kmsInput.value = '';
+                    errorMsg.classList.add('hidden');
+                }
+            });
+
+            const keyDatabase = {
+                'W269N-WFGWX-YVC9B-4J6C9-T83GX': { version: 'Windows 10/11 Pro', hwid: 'VK7JG-NPHTM-C97JM-9MPGT-3V66T' },
+                'MH37W-N47XK-V7XM9-C7227-GCQG9': { version: 'Windows 10/11 Pro N', hwid: '2B87N-8KFHP-DKV6R-Y2C8J-PKCKT' },
+                'NRG8B-VKK3Q-CXVCJ-9G2XF-HKCX4': { version: 'Windows 10/11 Pro for Workstations', hwid: 'DXG7C-N36C4-C4HTG-X4T3X-2YV77' },
+                'TX9XD-98N7V-6WMQ6-BX7FG-H8Q99': { version: 'Windows 10/11 Home (Обычная / Без Pro)', hwid: 'YTMG3-N6DKC-DKB77-7M9GH-8HVX7' },
+                '3KHY7-WNT83-DGQKR-F7HPR-844BM': { version: 'Windows 10/11 Home N', hwid: '4CPRK-NM3K3-X6XXQ-RXX86-WXCHW' },
+                '7HNRX-D7KGG-3K4RQ-4WPJ4-YTDFH': { version: 'Windows 10/11 Home Single Language', hwid: 'BT79Q-G7N6G-PGBYW-4YWX6-6F4BT' },
+                'NPPR9-FWDCX-D2C8J-H872K-2YT43': { version: 'Windows 10/11 Enterprise', hwid: 'XGVPP-NMH47-7TTHJ-W3FW7-8HV2C' },
+                'DPH2V-TTNVB-4X9Q3-TJR4H-KHJW4': { version: 'Windows 10/11 Enterprise N', hwid: 'WGGHN-J84D6-QYCPR-T7PJ7-X766F' },
+                'NW6C2-QMPVW-D7KKK-3GKT6-VCFB2': { version: 'Windows 10/11 Education', hwid: 'YNMGQ-8RYV3-4PGQ3-C8XTP-7CFBY' },
+                '2WH4N-8QGBV-H22JP-CT43Q-MDWWJ': { version: 'Windows 10/11 Education N', hwid: '84NGF-MHBT6-FXBX8-QWJK7-DRR8H' },
+            };
+
+            function isValidKeyFormat(key) {
+                const regex = /^[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}$/i;
+                return regex.test(key);
+            }
+
+            function extractKeyFromText(text) {
+                const keyRegex = /([A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5})/i;
+                const match = text.match(keyRegex);
+                return match ? match[1].toUpperCase() : null;
+            }
+
+            kmsInput.addEventListener('input', function(e) {
+                const extractedKey = extractKeyFromText(e.target.value);
+                
+                if (extractedKey) {
+                    e.target.value = extractedKey;
+                }
+                
+                errorMsg.classList.add('hidden');
+                detectedVersionContainer.classList.add('hidden');
+                resultContainer.classList.add('hidden');
+                resultContainer.classList.remove('opacity-100');
+            });
+
+            function generateFallbackKey(seedStr) {
+                let hash = 0;
+                for (let i = 0; i < seedStr.length; i++) {
+                    hash = seedStr.charCodeAt(i) + ((hash << 5) - hash);
+                }
+                const chars = 'BCDFGHJKMPQRTVWXY2346789';
+                let key = '';
+                for (let i = 0; i < 25; i++) {
+                    if (i > 0 && i % 5 === 0) key += '-';
+                    const randomIdx = Math.abs((hash * (i + 1)) % chars.length);
+                    key += chars[randomIdx];
+                    hash = (hash << 1) ^ randomIdx; 
+                }
+                return key;
+            }
+
+            convertBtn.addEventListener('click', () => {
+                let resultHwid = '';
+                let detectedName = '';
+
+                if (osSelect.value) {
+                    resultHwid = osSelect.value;
+                    // Получаем текст выбранного option
+                    detectedName = osSelect.options[osSelect.selectedIndex].text;
+                } else {
+                    const inputKey = extractKeyFromText(kmsInput.value) || kmsInput.value.toUpperCase();
+
+                    if (!isValidKeyFormat(inputKey)) {
+                        errorMsg.classList.remove('hidden');
+                        return;
+                    }
+
+                    if (keyDatabase[inputKey]) {
+                        resultHwid = keyDatabase[inputKey].hwid;
+                        detectedName = keyDatabase[inputKey].version;
+                        
+                        Array.from(osSelect.options).forEach(opt => {
+                            if(opt.value === resultHwid) osSelect.value = resultHwid;
+                        });
+                    } else {
+                        resultHwid = generateFallbackKey(inputKey);
+                        detectedName = 'Пользовательская / Неизвестная редакция';
+                        osSelect.value = ""; 
+                    }
+                }
+
+                versionNameOutput.textContent = detectedName;
+                step1VersionName.textContent = detectedName;
+                detectedVersionContainer.classList.remove('hidden');
+                
+                // Вставляем готовую команду для CMD
+                hwidOutput.value = `slmgr /ipk ${resultHwid}`;
+                resultContainer.classList.remove('hidden');
+
+                setTimeout(() => {
+                    resultContainer.classList.add('opacity-100');
+                }, 50);
+            });
+
+            function copyTextToClipboard(text) {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position = "absolute";
+                textArea.style.left = "-999999px";
+                document.body.appendChild(textArea);
+                textArea.select();
+
+                try {
+                    document.execCommand('copy');
+                    showToast();
+                } catch (err) {
+                    console.error('Ошибка при копировании', err);
+                } finally {
+                    textArea.remove();
+                }
+            }
+
+            function showToast() {
+                copyToast.classList.remove('opacity-0');
+                copyToast.classList.add('opacity-100');
+                
+                setTimeout(() => {
+                    copyToast.classList.remove('opacity-100');
+                    copyToast.classList.add('opacity-0');
+                }, 2500);
+            }
+
+            const copyCmdBtns = document.querySelectorAll('.copy-cmd-btn');
+            copyCmdBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Если у кнопки есть атрибут data-clipboard-text, берем текст оттуда. 
+                    // Иначе ищем соседний input и берем текст из него.
+                    let textToCopy = this.getAttribute('data-clipboard-text');
+                    
+                    if (!textToCopy) {
+                        const inputElement = this.previousElementSibling;
+                        if (inputElement && inputElement.tagName === 'INPUT') {
+                            textToCopy = inputElement.value;
+                        }
+                    }
+
+                    if (textToCopy) {
+                        copyTextToClipboard(textToCopy);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
