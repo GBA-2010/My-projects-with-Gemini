@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Полное руководство: OpenWRT Backup & Update</title>
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-dark: #0369a1;
+            --bg-color: #f8fafc;
+            --text-main: #334155;
+            --code-bg: #1e293b;
+            --code-text: #e2e8f0;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        h1 {
+            color: var(--primary-dark);
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        h2 {
+            color: var(--primary);
+            margin-top: 40px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 5px;
+        }
+
+        h3 {
+            color: #475569;
+        }
+
+        /* Оглавление (Конспект) */
+        .toc {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .toc h3 {
+            margin-top: 0;
+            color: var(--primary-dark);
+        }
+        .toc ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+        .toc li {
+            margin-bottom: 8px;
+        }
+        .toc a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        .card {
+            background-color: #f1f5f9;
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .card.danger {
+            border-left-color: var(--danger);
+            background-color: #fef2f2;
+        }
+        
+        .card.danger h3 {
+            color: var(--danger);
+            margin-top: 0;
+        }
+
+        .card.warning {
+            border-left-color: var(--warning);
+            background-color: #fffbeb;
+        }
+
+        .card.success {
+            border-left-color: var(--success);
+            background-color: #ecfdf5;
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 14px;
+            position: relative;
+        }
+
+        code {
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #475569;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background 0.2s;
+            font-weight: bold;
+        }
+        
+        .copy-btn:hover {
+            background: #64748b;
+        }
+
+        .step-badge {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            margin-top: 15px;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🛡️ Руководство администратора OpenWRT</h1>
+    
+    <div class="toc">
+        <h3>📑 Конспект (Оглавление)</h3>
+        <ul>
+            <li><a href="#section-theory">1. Теория: Зачем нужен архив и как "сломать" роутер</a></li>
+            <li><a href="#section-backup">2. Создание резервной копии (Backup)</a></li>
+            <li><a href="#section-move">3. Сохранение и перенос архива на диск C:\</a></li>
+            <li><a href="#section-restore">4. Как восстановить систему из архива</a></li>
+            <li><a href="#section-update">5. Обновление прошивки до свежей версии</a></li>
+            <li><a href="#section-hardware">6. Как узнать характеристики памяти (RAM/Flash)</a></li>
+        </ul>
+    </div>
+
+    <!-- ТЕОРЕТИЧЕСКАЯ ЧАСТЬ -->
+    <h2 id="section-theory">1. Теория: Зачем нужен архив и риски</h2>
+    <div class="card danger">
+        <h3>Зачем нужен архив и как можно «сломать» роутер?</h3>
+        <p>OpenWRT дает полный доступ к системе. Вот самые частые способы потерять доступ:</p>
+        <ul>
+            <li><strong>Смена IP-адреса LAN:</strong> Удаление сетевого моста (br-lan) или неверный IP-адрес интерфейса навсегда закроют доступ к веб-панели.</li>
+            <li><strong>Игры с Firewall:</strong> Блокировка 22 порта (SSH) или 80 порта (HTTP) для локальной сети.</li>
+            <li><strong>Поломка VPN/Прокси:</strong> Неправильные правила маршрутизации отправят трафик "в никуда", и интернет полностью пропадет.</li>
+            <li><strong>Переполнение памяти:</strong> Заполнение Flash-памяти на 100% приведет к зависанию роутера.</li>
+        </ul>
+        <p><em>Резервная копия (бэкап) — это ваша "точка возврата", которая за 1 минуту вернет роутер к рабочему состоянию.</em></p>
+    </div>
+
+    <div class="card warning">
+        <strong>Важное техническое правило:</strong> Роутер не имеет права самостоятельно отправлять файлы в Windows. Процесс состоит из двух шагов: сначала роутер собирает архив у себя внутри (команда по SSH), а затем Windows "забирает" его к себе (команда в cmd).
+    </div>
+
+    <!-- БЭКАП -->
+    <h2 id="section-backup">2. Создание резервной копии (Backup)</h2>
+    <p>Выполняется внутри роутера через терминал.</p>
+    
+    <div class="step-badge">Действие 1.1</div>
+    <p>Подключитесь к роутеру по SSH и введите команду создания бэкапа:</p>
+    <pre><code>sysupgrade -b /tmp/my_router_backup.tar.gz</code></pre>
+
+    <div class="step-badge">Действие 1.2</div>
+    <p>Выйдите из консоли роутера, чтобы вернуться в Windows:</p>
+    <pre><code>exit</code></pre>
+
+    <!-- ПЕРЕНОС ФАЙЛОВ -->
+    <h2 id="section-move">3. Сохранение и перенос архива на диск C:\</h2>
+    <p>Выполняется в <strong>Командной строке (cmd)</strong> Windows.</p>
+
+    <div class="step-badge">Действие 2.1</div>
+    <p>Создайте папку на рабочем столе и скопируйте туда файл с роутера (используем флаг -O для совместимости):</p>
+    <pre><code>mkdir "%USERPROFILE%\Desktop\archive_openwrt"</code></pre>
+    <pre><code>scp -O root@192.168.1.1:/tmp/my_router_backup.tar.gz "%USERPROFILE%\Desktop\archive_openwrt\"</code></pre>
+
+    <div class="step-badge">Действие 2.2</div>
+    <p>Перенесите папку с Рабочего стола в корень диска C:\. <strong>Внимание: командная строка должна быть запущена от имени Администратора.</strong></p>
+    <pre><code>move "%USERPROFILE%\Desktop\archive_openwrt" "C:\"</code></pre>
+
+    <!-- ВОССТАНОВЛЕНИЕ -->
+    <h2 id="section-restore">4. Как восстановить систему из архива</h2>
+    <p>Если что-то сломалось, но терминал работает. Выполнять в <strong>Командной строке (cmd)</strong> Windows.</p>
+
+    <div class="step-badge">Действие 4.1</div>
+    <p>Отправляем архив с диска C:\ обратно на роутер:</p>
+    <pre><code>scp -O "C:\archive_openwrt\my_router_backup.tar.gz" root@192.168.1.1:/tmp/</code></pre>
+
+    <div class="step-badge">Действие 4.2</div>
+    <p>Заходим в роутер (<code>ssh root@192.168.1.1</code>) и восстанавливаем настройки:</p>
+    <pre><code>sysupgrade -r /tmp/my_router_backup.tar.gz</code></pre>
+
+    <div class="step-badge">Действие 4.3</div>
+    <p>Перезагружаем роутер:</p>
+    <pre><code>reboot</code></pre>
+
+    <!-- ОБНОВЛЕНИЕ -->
+    <h2 id="section-update">5. Обновление прошивки до свежей версии</h2>
+    <div class="card danger">
+        <h3>⚠️ Внимание перед обновлением</h3>
+        <p>Для сохранения прокси/VPN используйте прошивку (.bin или .itb) <strong>только от автора вашей текущей сборки</strong>. "Чистая" официальная прошивка удалит все установленные плагины.</p>
+    </div>
+    
+    <p>Выполняется внутри роутера через SSH:</p>
+
+    <div class="step-badge">Шаг 1</div>
+    <p>Переходим во временную папку:</p>
+    <pre><code>cd /tmp</code></pre>
+    
+    <div class="step-badge">Шаг 2</div>
+    <p>Скачиваем новую прошивку в роутер (замените URL на реальную ссылку):</p>
+    <pre><code>wget "ССЫЛКА_НА_ПРОШИВКУ" -O sysupgrade.bin</code></pre>
+    
+    <div class="step-badge">Шаг 3</div>
+    <p>Обновляем прошивку <strong>с сохранением текущих настроек</strong>:</p>
+    <pre><code>sysupgrade -v /tmp/sysupgrade.bin</code></pre>
+    <p><em>Если нужен полный сброс "с нуля", используйте: <code>sysupgrade -n /tmp/sysupgrade.bin</code></em></p>
+
+    <!-- ХАРАКТЕРИСТИКИ -->
+    <h2 id="section-hardware">6. Как узнать характеристики памяти (RAM/Flash)</h2>
+    <div class="card success">
+        <h3>Способ 1: Через веб-интерфейс</h3>
+        <p>В верхнем меню нажмите <strong>Статус (Status)</strong> ➔ <strong>Обзор (Overview)</strong>. Там отображается загрузка процессора, занятая RAM (из 256 МБ) и свободное место на Flash (из 128 МБ).</p>
+    </div>
+
+    <div class="card warning">
+        <h3>Способ 2: Через терминал роутера (SSH)</h3>
+        <p>Оперативная память (RAM):</p>
+        <pre><code>free -m</code></pre>
+        <p>Постоянная память (Flash). Ищите строку с <code>/overlay</code>:</p>
+        <pre><code>df -h</code></pre>
+        <p>Нагрузка на процессор (для выхода нажмите <strong>Q</strong>):</p>
+        <pre><code>top</code></pre>
+        <p>Подробная информация о процессоре:</p>
+        <pre><code>cat /proc/cpuinfo</code></pre>
+    </div>
+
+</div>
+
+<script>
+    // Скрипт для кнопок копирования
+    document.querySelectorAll('pre').forEach(function(pre) {
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.innerHTML = '📋 Копировать';
+        btn.title = 'Скопировать команду';
+        
+        btn.addEventListener('click', function() {
+            var codeText = pre.querySelector('code').innerText;
+            var textarea = document.createElement('textarea');
+            textarea.value = codeText.trim();
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                btn.innerHTML = '✅ Скопировано!';
+                btn.style.background = '#10b981';
+                setTimeout(function() {
+                    btn.innerHTML = '📋 Копировать';
+                    btn.style.background = '#475569';
+                }, 2000);
+            } catch (err) {
+                btn.innerHTML = '❌ Ошибка';
+            }
+            document.body.removeChild(textarea);
+        });
+        pre.appendChild(btn);
+    });
+</script>
+
+</body>
+</html>
